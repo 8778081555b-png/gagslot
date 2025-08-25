@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Garden Spin — фан-ивент</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Arial;margin:0;padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+    .slot{font-size:48px;letter-spacing:12px;border:2px solid #ddd;border-radius:12px;padding:12px 24px;min-width:220px;text-align:center}
+    button{font-size:18px;padding:10px 18px;border-radius:10px;border:1px solid #ccc;background:#f6f6f6}
+    .msg{min-height:40px}
+    .rules{max-width:580px;font-size:14px;color:#444}
+  </style>
+</head>
+<body>
+  <h1>🎰 Garden Spin — фан-ивент</h1>
+  <div class="slot" id="slot">– | – | –</div>
+  <button id="spinBtn">Крутить</button>
+  <div class="msg" id="msg"></div>
+
+  <div class="rules">
+    <h3>Правила:</h3>
+    <ol>
+      <li>Каждый участник получает гарантированный приз 🎁 (например, +5 shekels).</li>
+      <li>Если выпадает <b>777</b> — доп. приз: редкий питомец.</li>
+      <li>Для начисления приза напишите <b>baur</b> в Telegram и пришлите скрин.</li>
+    </ol>
+    <p>Нет реальных денег, только внутриигровые бонусы.</p>
+  </div>
+
+  <script>
+    const slot = document.getElementById('slot');
+    const msg  = document.getElementById('msg');
+    const btn  = document.getElementById('spinBtn');
+
+    function rand(){ return Math.floor(Math.random()*8); } // 0..7
+    function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+    // шанс джекпота: 1% (поменяй 0.01 на другое значение при необходимости)
+    function roll(){
+      if (Math.random() < 0.01) return [7,7,7];
+      let a=rand(), b=rand(), c=rand();
+      if (a===7 && b===7 && c===7) c=6;
+      return [a,b,c];
+    }
+
+    async function animateTo(res){
+      for (let i=0;i<10;i++){
+        slot.textContent = `${rand()} | ${rand()} | ${rand()}`;
+        await sleep(70 + i*15);
+      }
+      slot.textContent = `${res[0]} | ${res[1]} | ${res[2]}`;
+    }
+
+    btn.addEventListener('click', async ()=>{
+      btn.disabled = true; msg.textContent = 'Крутим...';
+      const r = roll();
+      await animateTo(r);
+      if (r.every(v=>v===7)){
+        msg.innerHTML = '✨ 777! Доп. приз — редкий питомец. Напишите <b>baur</b>.';
+      } else {
+        msg.innerHTML = '🎁 Гарантированный приз начислим — напишите <b>baur</b>.';
+      }
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>
